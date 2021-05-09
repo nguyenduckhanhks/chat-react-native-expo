@@ -18,13 +18,13 @@ const Profile = ({navigation, route}) => {
     const [photo, setPhoto] = useState('')
     const [birthday, setBirthday] = useState(new Date(Date.now()))
     const [gender, setGender] = useState('male')
-    const [email, setEmail] = useState('admin@gmail.com')
-    const [tel, setTel] = useState('0963526978')
-    const [name, setName] = useState('Nguyễn Đức Khánh')
+    const [email, setEmail] = useState('')
+    const [tel, setTel] = useState('')
+    const [name, setName] = useState('')
     const [address, setAddress] = useState('')
 
     const [isEdit, setIsEdit] = useState(false)
-    const [type, setType] = useState('myProfile')
+    const [type, setType] = useState('account')
     const [statusFriend, setStatusFriend] = useState('none')
     const [idRequest, setIdRequest] = useState('none')
 
@@ -32,9 +32,9 @@ const Profile = ({navigation, route}) => {
         getData()
     }, [uid])
 
-    const getData = async () => {
+    const getData =  () => {
         //Check is loginư
-        await firebase.auth().onAuthStateChanged(user => {
+         firebase.auth().onAuthStateChanged(user => {
             if(!user) return navigation.navigate('Login')
             let uidLogin = user['uid']
             setUidLogin(uidLogin)
@@ -56,8 +56,8 @@ const Profile = ({navigation, route}) => {
         })
     }
 
-    const getDataUser = async (uid) => {
-        await firebase.firestore()
+    const getDataUser =  (uid) => {
+         firebase.firestore()
                     .collection('users')
                     .doc(uid)
                     .onSnapshot(querysnapshot => {
