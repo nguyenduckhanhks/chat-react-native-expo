@@ -16,7 +16,7 @@ import 'firebase/firestore';
 
 import Header from '../components/Search/Header';
 
-const Search = () => {
+const Search = ({navigation}) => {
 
     const [listUser, setListUser] = useState([])
     const [refreshing, setRefreshing] = useState(false)
@@ -83,7 +83,10 @@ const Search = () => {
                     filterUsers.map((item) =>
                     <TouchableOpacity 
                         key={item["_id"]}
-                        onPress = { () => alert(item["_id"]) }
+                        onPress = { () => navigation.navigate('Profile', {
+                            type:'account',
+                            userId: item["id"]
+                        }) }
                      >
                         <View 
                             style={styles.rowUser}

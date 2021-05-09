@@ -12,6 +12,7 @@ const Header = ({navigation}) => {
                     paddingLeft: 0,
                     justifyContent: 'center'
                 }}
+                onPress={() => navigation.pop()}
             >
                 <Image
                     source={icons.back}

@@ -7,6 +7,7 @@ import DatePicker from '../components/DatePicker';
 import * as firebase from 'firebase';
 import { RadioButton } from 'react-native-paper';
 import { COLORS, icons, FONTS } from '../constants';
+import Header from '../components/Disscusion/Header';
 import 'firebase/firestore';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
@@ -143,12 +144,24 @@ const Profile = ({navigation, route}) => {
     }
     
     return (
-        <SafeAreaView style={{paddingHorizontal: 10, paddingBottom: 80}}>
-            <View style={{height: 100, marginBottom: 30}}>
+        <LinearGradient
+            style={styles.container}
+            colors={[COLORS.primary2, COLORS.primary1, COLORS.primary]}
+        >
+            <View style={{paddingHorizontal: 20}}>
+                <Header navigation = {navigation}/>
+            </View>
+            <View style={{
+                paddingTop: 20,
+                backgroundColor: COLORS.white,
+                borderTopRightRadius: 30,
+                borderTopLeftRadius: 30,
+                marginTop: 10,
+                }}>
                 <View style={{
                     flexDirection: 'row',
                     justifyContent: 'center',
-                    flex: 1
+                    //flex: 1
                 }}>
                     {/* Avatar */}
                     <Image
@@ -218,10 +231,12 @@ const Profile = ({navigation, route}) => {
 
             <Text style={{
                 fontSize: 35,
-                textAlign: 'center'
+                textAlign: 'center',
+                paddingTop: 20,
+                backgroundColor: COLORS.white,
             }}>{name}</Text>
 
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView showsVerticalScrollIndicator={false} style={{backgroundColor: COLORS.white}}>
                 <KeyboardAwareScrollView>
                     <View>
                         <DatePicker 
@@ -361,13 +376,21 @@ const Profile = ({navigation, route}) => {
                 </KeyboardAwareScrollView>
             </ScrollView>
 
-        </SafeAreaView>
+        </LinearGradient>
     ) 
 }
 
 export default Profile
 
 const styles = StyleSheet.create({
+    container:{
+        height:'98%',
+        position:"absolute",
+        left:0,
+        right:0,
+        top:0,
+        paddingTop:30
+    },
     gradient:{
         height:'100%',
         position:"absolute",

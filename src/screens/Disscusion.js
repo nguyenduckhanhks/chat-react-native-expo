@@ -12,14 +12,14 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../components/Disscusion/Header';
 import ChatPanel from '../components/Disscusion/ChatPanel';
 
-const Disscusion = () => {
+const Disscusion = ({navigation}) => {
     return (
         <LinearGradient
             style={styles.container}
             colors={[COLORS.primary2, COLORS.primary1, COLORS.primary]}
         >
             <View style={{paddingHorizontal: 20}}>
-                <Header/>
+                <Header navigation = {navigation}/>
             </View>
 
             <View style={styles.chatPanel}>
