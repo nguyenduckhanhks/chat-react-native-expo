@@ -12,7 +12,7 @@ const Signup = ({navigation}) => {
     const [password, setPassword] = useState('111111')
     const [confirmPassword, setConfirmPassword] = useState('111111')
     const [gender, setGender] = useState('male')
-
+    const [photo, setPhoto] = useState('https://ui-avatars.com/api/?name=Chat&background=random')
     const onSignup = () => {
         if(!email || !name || !password || !confirmPassword) Alert.alert('Vui lòng nhập đủ thông tin cần thiết!')
         if(password !== confirmPassword) Alert.alert('Mật khẩu nhập vào không khớp nhau!')
@@ -24,7 +24,7 @@ const Signup = ({navigation}) => {
                 email: email,
                 tel: '',
                 birthday: null,
-                photo: '',
+                photo: photo,
                 status: 'online',
                 address: ''
             }
@@ -89,7 +89,13 @@ const Signup = ({navigation}) => {
                         placeholder='Tên người dùng'
                         style={styles.input}
                         value={name}
-                        onChangeText={setName}
+                        onChangeText={text=>{
+                            setName(text);
+                            let tmpName = text.split(' ').join('+');
+                            let _photo = "https://ui-avatars.com/api/?name="+tmpName+"&background=random";
+                            setPhoto(_photo);
+                        }
+                        }
                     />
                 </View>
                 <View style={styles.inputSection}>

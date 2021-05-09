@@ -135,7 +135,8 @@ const Home = ({navigation}) => {
                                                 lastMessage={'hello, how are you'}
                                                 lastTime={'2.am'}
                                                 onPress={()=>{
-                                                    props.navigation.navigate('Discussion');
+                                                   // props.navigation.navigate('Disscusion');
+                                                   console.log('discusss');
                                                 }}
                                             />
                                         ))
