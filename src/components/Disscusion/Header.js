@@ -2,8 +2,7 @@ import React from 'react';
 import { View, TouchableOpacity, Image, Text, StyleSheet} from 'react-native';
 import { icons, SIZES, COLORS, FONTS } from '../../constants';
 
-const Header = ({navigation}) => {
-
+const Header = ({navigation, title, subtitle, titleColor, subtitleColor, rightIcon, onTapRightIcon}) => {
     return (
         <View style={{ flexDirection: 'row', height: 50, marginTop: 10 }}>
             <TouchableOpacity
@@ -34,8 +33,8 @@ const Header = ({navigation}) => {
                         borderRadius: SIZES.radius
                     }}
                 >
-                    <Text style={{ ...FONTS.h3 }}>Tên Chatbox</Text>
-                    <Text style={{ ...FONTS.body5 }}>Yesterday</Text>
+                    <Text style={{ ...FONTS.h3, color: titleColor }}>{title}</Text>
+                    <Text style={{ ...FONTS.body5, color: subtitleColor }}>{subtitle}</Text>
                 </View>
             </View>
 
@@ -45,9 +44,10 @@ const Header = ({navigation}) => {
                     paddingRight: 0,
                     justifyContent: 'center'
                 }}
+                onPress={() => onTapRightIcon()}
             >
                 <Image 
-                    source={icons.avatar} 
+                    source={rightIcon} 
                     style={styles.avatar}
                 />
             </TouchableOpacity>

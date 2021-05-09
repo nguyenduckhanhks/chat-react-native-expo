@@ -5,7 +5,7 @@ import {
     TextInput,
     TouchableOpacity
 } from 'react-native';
-import { COLORS, FONTS } from '../constants';
+import { COLORS, FONTS, icons } from '../constants';
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -19,7 +19,11 @@ const Disscusion = ({navigation}) => {
             colors={[COLORS.primary2, COLORS.primary1, COLORS.primary]}
         >
             <View style={{paddingHorizontal: 20}}>
-                <Header navigation = {navigation}/>
+                <Header navigation = {navigation}
+                    title="User 1"
+                    subtitle="Đang hoạt động"
+                    rightIcon={icons.avatar}
+                />
             </View>
 
             <View style={styles.chatPanel}>

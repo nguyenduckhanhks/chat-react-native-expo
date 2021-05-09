@@ -149,11 +149,19 @@ const Profile = ({navigation, route}) => {
             colors={[COLORS.primary2, COLORS.primary1, COLORS.primary]}
         >
             <View style={{paddingHorizontal: 20}}>
-                <Header navigation = {navigation}/>
+                <Header navigation = {navigation}
+                    title="Hồ sơ"
+                    subtitle="Đang hoạt động"
+                    subtitleColor="#7fff00"
+                    rightIcon={type === 'myProfile' ? icons.exit : null}
+                    onTapRightIcon={() => {
+                        type === 'myProfile' ? Signout() : null}
+                    }
+                />
             </View>
             <View style={{
                 paddingTop: 20,
-                backgroundColor: COLORS.white,
+                backgroundColor: COLORS.gray,
                 borderTopRightRadius: 30,
                 borderTopLeftRadius: 30,
                 marginTop: 10,
@@ -233,10 +241,10 @@ const Profile = ({navigation, route}) => {
                 fontSize: 35,
                 textAlign: 'center',
                 paddingTop: 20,
-                backgroundColor: COLORS.white,
+                backgroundColor: COLORS.gray,
             }}>{name}</Text>
 
-            <ScrollView showsVerticalScrollIndicator={false} style={{backgroundColor: COLORS.white}}>
+            <ScrollView showsVerticalScrollIndicator={false} style={{backgroundColor: COLORS.gray}}>
                 <KeyboardAwareScrollView>
                     <View>
                         <DatePicker 
