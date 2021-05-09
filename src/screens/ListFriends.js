@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {
     View,
     Text,
@@ -12,11 +12,40 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import { COLORS, FONTS } from '../constants';
 import { users } from '../data';
-import { LinearGradient } from 'expo-linear-gradient'
+import { LinearGradient } from 'expo-linear-gradient';
+import * as firebase from 'firebase';
 
 import Header from '../components/ListFriends/Header';
 
 const ListFriends = () => {
+    const [uidLogin, setUidLogin] = useState('')
+    const [listRequest, setListRequest] = useState([])
+
+    useEffect(() => {
+        firebase.auth().onAuthStateChanged(user => {
+            if(!user) return navigation.navigate('Login')
+            let uidLogin = user['uid']
+            setUidLogin(uidLogin)
+        })
+
+        getListRequest()
+    }, [])
+
+    const getListRequest = () => {
+        firebase.firestore()
+                .collection('requests')
+                .where('to', '==', uidLogin)
+                .onSnapshot(querySnapshot => {
+                    const listReq = querySnapshot.docs.map(doc => {
+                        return {
+                            idRequest: doc.id,
+                            userId: doc.data()['from']
+                        }
+                    })
+                    setListRequest(listReq)
+                })
+    }
+
     return (
         <View style={styles.container}>
             <Header/>
