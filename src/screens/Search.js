@@ -20,7 +20,7 @@ const Search = () => {
 
     const [listUser, setListUser] = useState([])
     const [refreshing, setRefreshing] = useState(false)
-
+    const [filterUsers, setFilterUsers] = useState([])
     const getUsers = () => {
         try {
             setRefreshing(true)
@@ -28,11 +28,15 @@ const Search = () => {
                 const list = querySnap.docs.map((doc) => {
                     let user = doc.data();
                     return {
-                        id: doc.id,
+                        _id: doc.id,
                         ...user
                     }
                 });
+                list.sort((a, b) => {
+                    return (a["name"] < b["name"]) ? -1 : ((a["name"] > b["name"]) ? 1 : 0)
+                })
                 setListUser(list);
+                setFilterUsers(list);
             });
             setRefreshing(false)
         } catch (e) {
@@ -52,8 +56,18 @@ const Search = () => {
                 <View style={styles.inputSection}>
                     <Icon style={styles.inputIcon} name="search-outline" size={20} color={COLORS.primary}/>
                     <TextInput
-                        style={{...FONTS.body3}}
+                        style={{...FONTS.body3, flex: 1}}
                         placeholder="Tìm kiếm"
+                        clearButtonMode='while-editing'
+                        onChangeText={text => {
+                            console.log(text)
+                            const _text = text.toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+                            const _filters = text == "" ? listUser : listUser.filter(user => {
+                                return user["name"].toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(_text)
+                            })
+                            console.log(_filters)
+                            setFilterUsers(_filters)
+                        }}
                     />
                 </View>
                 <ScrollView style={{marginBottom: 50}} 
@@ -66,14 +80,14 @@ const Search = () => {
                       }
                     >
                 {
-                    listUser.map((item) =>
+                    filterUsers.map((item) =>
                     <TouchableOpacity 
-                        key={item["id"]}
-                        onPress = { () => alert(item["id"]) }
+                        key={item["_id"]}
+                        onPress = { () => alert(item["_id"]) }
                      >
                         <View 
                             style={styles.rowUser}
-                            key={item["id"]}
+                            key={item["_id"]}
                         >       
                                 <Image source={{uri: item["photo"] == "" ? "https://ui-avatars.com/api/?name="+item["name"]+"&background=random" : item["photo"]}} style={styles.avatar}/>
                                 <View style={styles.boxUsername}>
