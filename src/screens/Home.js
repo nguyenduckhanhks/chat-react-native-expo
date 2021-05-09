@@ -10,20 +10,30 @@ import {
     TextInput
 } from 'react-native';
 import { users } from '../data';
-import { COLORS, FONTS } from '../constants';
+import { COLORS, FONTS, icons } from '../constants';
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
+import * as firebase from 'firebase';
 
 import UserOnline from '../components/Home/UserOnline';
 import ListChatbox from '../components/Home/ListChatbox';
 import Header from '../components/Home/Header';
 
 const Home = ({navigation}) => {
-    const [loading, setLoading] = useState(false)
+    const [uidLogin, setUidLogin] = useState('')
+    const [listUser, setListUser] = useState([])
+
+    const [loading, setLoading] = useState(true)
     const userOnlAnimate = useRef(new Animated.ValueXY()).current;
     const listChatAnimate = useRef(new Animated.ValueXY()).current;
 
     useEffect(() =>{
+        firebase.auth().onAuthStateChanged(user => {
+            if(!user) return navigation.navigate('Login')
+            let uidLogin = user['uid']
+            setUidLogin(uidLogin)
+        })
+
         Animated.timing(userOnlAnimate, {
             toValue:{x:-400,y:0},
             delay:1000,
@@ -35,7 +45,26 @@ const Home = ({navigation}) => {
             delay:2000,
             useNativeDriver:false
         }).start();
-    })
+
+        getListUser()
+    }, [])
+
+    const getListUser = () => {
+        firebase.firestore()
+                .collection('users')
+                // .where('status', '=' , 'online')
+                .onSnapshot(querySnapshot => {
+                    const usersData = querySnapshot.docs.map(doc => {
+                        const data = doc.data()
+                        return {
+                            uid: doc.id,
+                            ...data
+                        }
+                    })
+                    setListUser(usersData)
+                    setLoading(false)
+                })
+    }
 
     return(
         <LinearGradient
@@ -71,11 +100,13 @@ const Home = ({navigation}) => {
                         ):(
                             <Animated.View style={[userOnlAnimate.getLayout(),styles.userOnlineCard]}>
                                 {
-                                    users.map((item, index) => (
+                                    listUser.map((item, index) => (
                                         <UserOnline
-                                            key={item.id}
-                                            username={item.login}
-                                            avatar={item.avatar_url}
+                                            key={item.uid}
+                                            username={item.name}
+                                            avatar={item.photo}
+                                            navigation={navigation}
+                                            uid={item.uid}
                                         />
                                     ))
                                 }

@@ -1,13 +1,19 @@
 import React from 'react';
-import {View,Text,StyleSheet,Image} from 'react-native';
-import { FONTS, COLORS} from '../../constants'
+import {View,Text,StyleSheet,Image, TouchableOpacity} from 'react-native';
+import { FONTS, COLORS, icons} from '../../constants'
 
-const UserOnline = ({username, avatar}) => {
+const UserOnline = ({navigation, username, avatar, uid}) => {
     return(
-        <View style={styles.container}>
-            <Image source={{uri: avatar}} style={styles.avatarStyle}/>
+        <TouchableOpacity 
+            style={styles.container}
+            onPress={() => navigation.navigate('Profile', {
+                type:'account',
+                userId: uid
+            })}
+        >
+            <Image source={avatar ? {uri: avatar} : icons.avatar} style={styles.avatarStyle}/>
             <Text style={styles.nameStyle}>{username}</Text>
-        </View>
+        </TouchableOpacity>
     )
 }
 export default UserOnline;

@@ -81,6 +81,7 @@ const DatePicker = (props) => {
                 <TouchableOpacity 
                     onPress={showMode}
                     disabled={props.disabled ? props.disabled : false}
+                    disabled={props.disabled}
                 >
                     <LinearGradient
                         style={{width: 30, height: 30,borderRadius: 5, alignItems: 'center', justifyContent: 'center'}}
