@@ -18,7 +18,7 @@ const StackNavigator = () => {
             }}
             initialRouteName={'Home'}
         >
-            <Stack.Screen name="Home" component={BottomTabNavigator} />
+            <Stack.Screen name="Home"  component={BottomTabNavigator} />
             <Stack.Screen name="Profile" component={Profile} />
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="SignUp" component={SignUp} />

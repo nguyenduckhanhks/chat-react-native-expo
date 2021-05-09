@@ -1,4 +1,5 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
+import {RefreshControl, TouchableOpacity} from 'react-native';
 import {
     View,
     Text,
@@ -10,11 +11,39 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { COLORS, FONTS } from '../constants';
-import { users } from '../data';
+import * as firebase from 'firebase';
+import 'firebase/firestore'; 
 
 import Header from '../components/Search/Header';
 
 const Search = () => {
+
+    const [listUser, setListUser] = useState([])
+    const [refreshing, setRefreshing] = useState(false)
+
+    const getUsers = () => {
+        try {
+            setRefreshing(true)
+            firebase.firestore().collection("users").onSnapshot(querySnap => {
+                const list = querySnap.docs.map((doc) => {
+                    let user = doc.data();
+                    return {
+                        id: doc.id,
+                        ...user
+                    }
+                });
+                setListUser(list);
+            });
+            setRefreshing(false)
+        } catch (e) {
+            console.log(e);
+            setRefreshing(false)
+        }
+    };
+    //Call when component is rendered
+    useEffect(() => {
+        getUsers();
+    }, []);
     return (
         <View style={styles.container}>
             <Header/>
@@ -27,18 +56,31 @@ const Search = () => {
                         placeholder="Tìm kiếm"
                     />
                 </View>
-                <ScrollView style={{paddingBottom: 50}}>
+                <ScrollView style={{marginBottom: 50}} 
+                    showsVerticalScrollIndicator={false}
+                    refreshControl={
+                        <RefreshControl
+                          refreshing={refreshing}
+                          onRefresh={getUsers}
+                        />
+                      }
+                    >
                 {
-                    users.map((item) => 
+                    listUser.map((item) =>
+                    <TouchableOpacity 
+                        key={item["id"]}
+                        onPress = { () => alert(item["id"]) }
+                     >
                         <View 
                             style={styles.rowUser}
-                            key={item.id}
+                            key={item["id"]}
                         >       
-                                <Image source={{uri: item.avatar_url}} style={styles.avatar}/>
+                                <Image source={{uri: item["photo"] == "" ? "https://ui-avatars.com/api/?name="+item["name"]+"&background=random" : item["photo"]}} style={styles.avatar}/>
                                 <View style={styles.boxUsername}>
-                                    <Text style={styles.username}>{item.login}</Text>
+                                    <Text style={styles.username}>{item["name"]}</Text>
                                 </View>
                         </View>
+                    </TouchableOpacity>
                     )
                 }
                 </ScrollView>
@@ -74,26 +116,29 @@ const styles = StyleSheet.create({
         height:50,
         borderRadius:25,
         marginRight: 10,
-        marginLeft: -15
+        marginLeft: -15,
     },
     username:{
         ...FONTS.body2,
         width: '80%',
         alignItems: 'center',
         justifyContent:'center',
+        alignContent: 'center',
     },
     boxUsername: {
-        borderBottomColor: COLORS.darkgray,
-        borderBottomWidth: 0.5,
         paddingBottom: 10,
         paddingLeft: 10,
         width: '90%',
-        flexDirection:'row',
+        justifyContent: 'flex-end',
+        alignContent: 'center',
     },
     rowUser: {
         flexDirection:'row',
         paddingHorizontal:20,
+        paddingVertical: 10,
         alignItems:'center',
-        marginTop:15
+        alignItems: 'stretch',
+        borderBottomColor: COLORS.darkgray,
+        borderBottomWidth: 0.5,
     }
 })
