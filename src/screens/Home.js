@@ -52,7 +52,7 @@ const Home = ({navigation}) => {
     const getListUser = () => {
         firebase.firestore()
                 .collection('users')
-                // .where('status', '=' , 'online')
+                .where('status', '==' , 'online')
                 .onSnapshot(querySnapshot => {
                     const usersData = querySnapshot.docs.map(doc => {
                         const data = doc.data()
@@ -62,6 +62,7 @@ const Home = ({navigation}) => {
                         }
                     })
                     setListUser(usersData)
+                    console.log(usersData.length)
                     setLoading(false)
                 })
     }

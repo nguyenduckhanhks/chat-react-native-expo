@@ -19,6 +19,7 @@ const Signup = ({navigation}) => {
 
         firebase.auth().createUserWithEmailAndPassword(email, password).then(res => {
             let newUser = {
+                id: res['user']['uid'],
                 name: name,
                 gender: gender,
                 email: email,

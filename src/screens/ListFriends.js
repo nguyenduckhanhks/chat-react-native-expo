@@ -10,7 +10,7 @@ import {
     TouchableOpacity,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { COLORS, FONTS } from '../constants';
+import { COLORS, FONTS, icons } from '../constants';
 import { users } from '../data';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as firebase from 'firebase';
@@ -20,6 +20,7 @@ import Header from '../components/ListFriends/Header';
 const ListFriends = () => {
     const [uidLogin, setUidLogin] = useState('')
     const [listRequest, setListRequest] = useState([])
+    const [listUserRequest, setListUserRequest] = useState([])
 
     useEffect(() => {
         firebase.auth().onAuthStateChanged(user => {
@@ -29,7 +30,11 @@ const ListFriends = () => {
         })
 
         getListRequest()
-    }, [])
+    }, [uidLogin])
+
+    useEffect(() => {
+        getListUserRequest()
+    }, [listRequest])
 
     const getListRequest = () => {
         firebase.firestore()
@@ -43,6 +48,40 @@ const ListFriends = () => {
                         }
                     })
                     setListRequest(listReq)
+                })
+    }
+    
+    const getListUserRequest = () => {
+        if(listRequest.length == 0) return;
+        let listUserIdRequest = listRequest.map(req => req['userId'])
+        firebase.firestore()
+                .collection('users')
+                .where('id', 'in', listUserIdRequest)
+                .onSnapshot(querySnapshot => {
+                    const listUser = querySnapshot.docs.map(doc => {
+                        const data = doc.data()
+                        return {
+                            uid: doc.id,
+                            ...data
+                        }
+                    })
+                    setListUserRequest(listUser)
+                })
+    }
+
+    const acceptRequest = () => {
+        let listUserIdRequest = listRequest.map(req => req['userId'])
+        let index = listUserIdRequest.filter(uerId => userId == uidLogin)[0]
+        let requestData = listRequest[index]
+
+        firebase.firestore()
+                .collection('request')
+                .doc(requestData['idRequest'])
+                .update({
+                    status: 'friend'
+                })
+                .then(() => {
+                    
                 })
     }
 
@@ -99,17 +138,17 @@ const ListFriends = () => {
                     </TouchableOpacity>
                 </View>
 
-                {/* Danh sách  */}
+                {/* Danh sách yêu cầu kết bạn */}
                 <ScrollView style={{paddingBottom: 50}}>
                 {
-                    users.map((item) => 
+                    listUserRequest.map((item) => 
                         <View 
                             style={styles.rowUser}
-                            key={item.id}
+                            key={item.uid}
                         >       
-                                <Image source={{uri: item.avatar_url}} style={styles.avatar}/>
+                                <Image source={item.photo ? {uri: item.photo} : icons.avatar} style={styles.avatar}/>
                                 <View style={styles.boxUsername}>
-                                    <Text style={styles.username}>{item.login}</Text>
+                                    <Text style={styles.username}>{item.name}</Text>
                                 </View>
                                 <TouchableOpacity 
                                     style={{
@@ -165,7 +204,7 @@ const styles = StyleSheet.create({
         marginLeft: -15
     },
     username:{
-        ...FONTS.body2,
+        ...FONTS.body3,
         width: '80%',
         alignItems: 'center',
         justifyContent:'center',
@@ -180,7 +219,8 @@ const styles = StyleSheet.create({
         flexDirection:'row',
         paddingHorizontal:20,
         alignItems:'center',
-        marginTop:15
+        marginTop:15,
+        alignContent: 'center'
     },
     buttonXoa: {
         position: 'absolute',
