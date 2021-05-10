@@ -4,7 +4,7 @@ export const avatar = require("../../assets/icons/avatar.jpg");
 export const back = require("../../assets/icons/back.png");
 export const plus = require("../../assets/icons/plus.png");
 export const heart = require("../../assets/icons/heart.png");
-
+export const exit = require("../../assets/icons/exit.png");
 export default {
     chat,
     user,
@@ -12,4 +12,5 @@ export default {
     back,
     plus,
     heart,
+    exit,
 }
