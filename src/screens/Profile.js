@@ -7,6 +7,7 @@ import DatePicker from '../components/DatePicker';
 import * as firebase from 'firebase';
 import { RadioButton } from 'react-native-paper';
 import { COLORS, icons, FONTS } from '../constants';
+import Header from '../components/Disscusion/Header';
 import 'firebase/firestore';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
@@ -17,13 +18,13 @@ const Profile = ({navigation, route}) => {
     const [photo, setPhoto] = useState('')
     const [birthday, setBirthday] = useState(new Date(Date.now()))
     const [gender, setGender] = useState('male')
-    const [email, setEmail] = useState('admin@gmail.com')
-    const [tel, setTel] = useState('0963526978')
-    const [name, setName] = useState('Nguyễn Đức Khánh')
+    const [email, setEmail] = useState('')
+    const [tel, setTel] = useState('')
+    const [name, setName] = useState('')
     const [address, setAddress] = useState('')
 
     const [isEdit, setIsEdit] = useState(false)
-    const [type, setType] = useState('myProfile')
+    const [type, setType] = useState('account')
     const [statusFriend, setStatusFriend] = useState('none')
     const [idRequest, setIdRequest] = useState('none')
 
@@ -31,9 +32,9 @@ const Profile = ({navigation, route}) => {
         getData()
     }, [uid])
 
-    const getData = async () => {
+    const getData =  () => {
         //Check is loginư
-        await firebase.auth().onAuthStateChanged(user => {
+         firebase.auth().onAuthStateChanged(user => {
             if(!user) return navigation.navigate('Login')
             let uidLogin = user['uid']
             setUidLogin(uidLogin)
@@ -55,8 +56,8 @@ const Profile = ({navigation, route}) => {
         })
     }
 
-    const getDataUser = async (uid) => {
-        await firebase.firestore()
+    const getDataUser =  (uid) => {
+         firebase.firestore()
                     .collection('users')
                     .doc(uid)
                     .onSnapshot(querysnapshot => {
@@ -143,12 +144,32 @@ const Profile = ({navigation, route}) => {
     }
     
     return (
-        <SafeAreaView style={{paddingHorizontal: 10, paddingBottom: 80}}>
-            <View style={{height: 100, marginBottom: 30}}>
+        <LinearGradient
+            style={styles.container}
+            colors={[COLORS.primary2, COLORS.primary1, COLORS.primary]}
+        >
+            <View style={{paddingHorizontal: 20}}>
+                <Header navigation = {navigation}
+                    title="Hồ sơ"
+                    subtitle="Đang hoạt động"
+                    subtitleColor="#7fff00"
+                    rightIcon={type === 'myProfile' ? icons.exit : null}
+                    onTapRightIcon={() => {
+                        type === 'myProfile' ? Signout() : null}
+                    }
+                />
+            </View>
+            <View style={{
+                paddingTop: 20,
+                backgroundColor: COLORS.gray,
+                borderTopRightRadius: 30,
+                borderTopLeftRadius: 30,
+                marginTop: 10,
+                }}>
                 <View style={{
                     flexDirection: 'row',
                     justifyContent: 'center',
-                    flex: 1
+                    //flex: 1
                 }}>
                     {/* Avatar */}
                     <Image
@@ -218,10 +239,12 @@ const Profile = ({navigation, route}) => {
 
             <Text style={{
                 fontSize: 35,
-                textAlign: 'center'
+                textAlign: 'center',
+                paddingTop: 20,
+                backgroundColor: COLORS.gray,
             }}>{name}</Text>
 
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView showsVerticalScrollIndicator={false} style={{backgroundColor: COLORS.gray}}>
                 <KeyboardAwareScrollView>
                     <View>
                         <DatePicker 
@@ -361,13 +384,21 @@ const Profile = ({navigation, route}) => {
                 </KeyboardAwareScrollView>
             </ScrollView>
 
-        </SafeAreaView>
+        </LinearGradient>
     ) 
 }
 
 export default Profile
 
 const styles = StyleSheet.create({
+    container:{
+        height:'98%',
+        position:"absolute",
+        left:0,
+        right:0,
+        top:0,
+        paddingTop:30
+    },
     gradient:{
         height:'100%',
         position:"absolute",
