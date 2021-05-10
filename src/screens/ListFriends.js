@@ -17,10 +17,17 @@ import * as firebase from 'firebase';
 
 import Header from '../components/ListFriends/Header';
 
-const ListFriends = () => {
+const ListFriends = ({navigation}) => {
     const [uidLogin, setUidLogin] = useState('')
     const [listRequest, setListRequest] = useState([])
     const [listUserRequest, setListUserRequest] = useState([])
+
+    const [listFriend, setListFriend] = useState([])
+    const [listUserFriend, setListUserFriend] = useState([])
+
+    const [filterUserRequest, setFilterUserRequest] = useState([])
+    const [filterUserFriend, setFilterUserFriend] = useState([])
+    const [mode, setMode] = useState('req')
 
     useEffect(() => {
         firebase.auth().onAuthStateChanged(user => {
@@ -29,17 +36,23 @@ const ListFriends = () => {
             setUidLogin(uidLogin)
         })
 
-        getListRequest()
+        getListRequest('waiting', setListRequest)
+        getListFriend('friend', setListFriend)
     }, [uidLogin])
 
     useEffect(() => {
-        getListUserRequest()
+        getListUserRequest(listRequest, setListUserRequest, setFilterUserRequest)
     }, [listRequest])
 
-    const getListRequest = () => {
+    useEffect(() => {
+        getListUserRequest(listFriend, setListUserFriend, setFilterUserFriend)
+    }, [listFriend])
+
+    const getListRequest = (condition, setState) => {
         firebase.firestore()
                 .collection('requests')
                 .where('to', '==', uidLogin)
+                .where('status', '==', condition)
                 .onSnapshot(querySnapshot => {
                     const listReq = querySnapshot.docs.map(doc => {
                         return {
@@ -47,17 +60,36 @@ const ListFriends = () => {
                             userId: doc.data()['from']
                         }
                     })
-                    setListRequest(listReq)
+                    setState(listReq)
+                })
+    }
+
+    const getListFriend = (condition, setState) => {
+        firebase.firestore()
+                .collection('requests')
+                .where('to', '==', uidLogin, '||', 'from', '==', uidLogin)
+                .where('status', '==', condition)
+                .onSnapshot(querySnapshot => {
+                    const listReq = querySnapshot.docs.map(doc => {
+                        return {
+                            idRequest: doc.id,
+                            userId: doc.data()['from']
+                        }
+                    })
+                    setState(listReq)
                 })
     }
     
-    const getListUserRequest = () => {
-        if(listRequest.length == 0) return;
+    const getListUserRequest = (listRequest, setState, setFilter) => {
+        if(listRequest.length == 0) {
+            setFilter([]);
+            return setState([]);
+        }
         let listUserIdRequest = listRequest.map(req => req['userId'])
         firebase.firestore()
                 .collection('users')
                 .where('id', 'in', listUserIdRequest)
-                .onSnapshot(querySnapshot => {
+                .onSnapshot( querySnapshot => {
                     const listUser = querySnapshot.docs.map(doc => {
                         const data = doc.data()
                         return {
@@ -65,23 +97,55 @@ const ListFriends = () => {
                             ...data
                         }
                     })
-                    setListUserRequest(listUser)
+                    setState(listUser)
+                    setFilter(listUser)
                 })
     }
 
-    const acceptRequest = () => {
+    const acceptRequest = (uid) => {
         let listUserIdRequest = listRequest.map(req => req['userId'])
-        let index = listUserIdRequest.filter(uerId => userId == uidLogin)[0]
+        let index = listUserIdRequest.indexOf(uid)
         let requestData = listRequest[index]
 
         firebase.firestore()
-                .collection('request')
+                .collection('requests')
                 .doc(requestData['idRequest'])
                 .update({
                     status: 'friend'
                 })
                 .then(() => {
-                    
+                    getListRequest('waiting', setListRequest)
+                    getListFriend('friend', setListFriend)
+                })
+    }
+    
+    const removeRequest = (uid) => {
+        let listUserIdRequest = listRequest.map(req => req['userId'])
+        let index = listUserIdRequest.indexOf(uid)
+        let requestData = listRequest[index]
+
+        firebase.firestore()
+                .collection('requests')
+                .doc(requestData['idRequest'])
+                .delete()
+                .then(() => {
+                    getListRequest('waiting', setListRequest)
+                    getListFriend('friend', setListFriend)
+                })
+    }
+
+    const removeFriend = (uid) => {
+        let listUserIdFriend = listFriend.map(req => req['userId'])
+        let index = listUserIdFriend.indexOf(uid)
+        let requestData = listFriend[index]
+
+        firebase.firestore()
+                .collection('requests')
+                .doc(requestData['idRequest'])
+                .delete()
+                .then(() => {
+                    getListRequest('waiting', setListRequest)
+                    getListRequest('friend', setListFriend)
                 })
     }
 
@@ -95,6 +159,24 @@ const ListFriends = () => {
                     <TextInput
                         style={{...FONTS.body3}}
                         placeholder="Tìm kiếm"
+                        onChangeText={text => {
+                            // console.log(text)
+                            let listUser =listUserRequest
+                            let _text = text.toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+                            let _filters = text == "" ? listUser : listUser.filter(user => {
+                                return user["name"].toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(_text)
+                            })
+                            // console.log(_filters)
+                            setFilterUserRequest(_filters)
+
+                            listUser =listUserFriend
+                            _text = text.toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+                            _filters = text == "" ? listUser : listUser.filter(user => {
+                                return user["name"].toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(_text)
+                            })
+                            // console.log(_filters)
+                            setFilterUserFriend(_filters)
+                        }}
                     />
                 </View>
 
@@ -105,8 +187,9 @@ const ListFriends = () => {
                             width: '48%',
                             marginRight: '2%'
                         }}
+                        onPress={() => setMode('req')}
                     >
-                        <LinearGradient colors={['#f26a50', '#f20042', '#f20045']} 
+                        <LinearGradient colors={mode == 'req' ? ['#f26a50', '#f20042', '#f20045'] : [COLORS.darkgray,COLORS.darkgray]} 
                             style={{
                                 paddingVertical: 15,
                                 backgroundColor: COLORS.white,
@@ -123,8 +206,9 @@ const ListFriends = () => {
                             width: '48%',
                             marginRight: '2%'
                         }}
+                        onPress={() => setMode('friend')}
                     >
-                        <LinearGradient colors={[COLORS.darkgray,COLORS.darkgray]} 
+                        <LinearGradient colors={mode == 'req' ? [COLORS.darkgray,COLORS.darkgray] : ['#f26a50', '#f20042', '#f20045']} 
                             style={{
                                 paddingVertical: 15,
                                 backgroundColor: COLORS.white,
@@ -133,7 +217,7 @@ const ListFriends = () => {
                                 marginRight: '2%'
                             }}
                         >
-                            <Text style={{...FONTS.h4}}>Bạn bè</Text>
+                            <Text style={{...FONTS.h4, color: COLORS.white}}>Bạn bè</Text>
                         </LinearGradient>
                     </TouchableOpacity>
                 </View>
@@ -141,12 +225,19 @@ const ListFriends = () => {
                 {/* Danh sách yêu cầu kết bạn */}
                 <ScrollView style={{paddingBottom: 50}}>
                 {
-                    listUserRequest.map((item) => 
-                        <View 
+                    mode == 'req' && filterUserRequest.map((item) => 
+                        <TouchableOpacity 
                             style={styles.rowUser}
                             key={item.uid}
+                            onPress={() => navigation.navigate('Profile', {
+                                type: 'account',
+                                userId: item.uid
+                            })}
                         >       
-                                <Image source={item.photo ? {uri: item.photo} : icons.avatar} style={styles.avatar}/>
+                                <Image 
+                                    source={item.photo ? {uri: item.photo} : icons.avatar} 
+                                    style={styles.avatar}
+                                />
                                 <View style={styles.boxUsername}>
                                     <Text style={styles.username}>{item.name}</Text>
                                 </View>
@@ -155,6 +246,7 @@ const ListFriends = () => {
                                         position: 'absolute',
                                         right: 60,
                                     }}
+                                    onPress={() => acceptRequest(item.uid)}
                                 >
                                     <LinearGradient colors={['#f26a50', '#f20042', '#f20045']} 
                                     style={styles.buttonAccept}
@@ -162,7 +254,23 @@ const ListFriends = () => {
                                         <Text style={{...FONTS.body4, color: COLORS.white}}>Xác nhận</Text>
                                     </LinearGradient>
                                 </TouchableOpacity>
-                                <TouchableOpacity style={styles.buttonXoa}>
+                                <TouchableOpacity style={styles.buttonXoa} onPress={() => removeRequest(item.uid)} >
+                                    <Text style={{...FONTS.body4}}>Xóa</Text>
+                                </TouchableOpacity>
+                        </TouchableOpacity>
+                    )
+                }
+                {
+                    mode == 'friend' && filterUserFriend.map((item) => 
+                        <View 
+                            style={styles.rowUser}
+                            key={item.uid}
+                        >       
+                                <Image source={item.photo ? {uri: item.photo} : icons.avatar} style={styles.avatar}/>
+                                <View style={styles.boxUsername}>
+                                    <Text style={styles.username}>{item.name}</Text>
+                                </View>
+                                <TouchableOpacity style={styles.buttonXoa} onPress={() => removeFriend(item.uid)}>
                                     <Text style={{...FONTS.body4}}>Xóa</Text>
                                 </TouchableOpacity>
                         </View>

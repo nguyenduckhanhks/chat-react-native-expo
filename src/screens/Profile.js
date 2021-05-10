@@ -226,7 +226,7 @@ const Profile = ({navigation, route}) => {
                         type !== 'myProfile' && statusFriend == 'friend' &&
                         <TouchableOpacity 
                             style={{marginLeft: -60, marginTop: 95}} 
-                            onPress={() => {}}
+                            onPress={() => removeRequest()}
                         >
                             <LinearGradient colors={['#f26a50', '#f20042', '#f20045']} style={{width: 30, height: 30,borderRadius: 15, alignItems: 'center', justifyContent: 'center'}}>
                                 <Icon style={{}} name="checkmark-outline" size={18} color="#fff"/>

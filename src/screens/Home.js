@@ -62,7 +62,6 @@ const Home = ({navigation}) => {
                         }
                     })
                     setListUser(usersData)
-                    console.log(usersData.length)
                     setLoading(false)
                 })
     }

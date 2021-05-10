@@ -60,12 +60,12 @@ const Search = ({navigation}) => {
                         placeholder="Tìm kiếm"
                         clearButtonMode='while-editing'
                         onChangeText={text => {
-                            console.log(text)
+                            // console.log(text)
                             const _text = text.toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")
                             const _filters = text == "" ? listUser : listUser.filter(user => {
                                 return user["name"].toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").includes(_text)
                             })
-                            console.log(_filters)
+                            // console.log(_filters)
                             setFilterUsers(_filters)
                         }}
                     />
