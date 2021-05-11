@@ -92,6 +92,20 @@ const Disscusion = ({navigation, route}) => {
                         }
                     })
         }
+
+        if(route.params.type == TYPE_GROUP) {
+            firebase.firestore()
+                    .collection('chats')
+                    .doc(route.params.idChat)
+                    .onSnapshot(doc => {
+                        setChatId(doc.id)
+                        setChatData({
+                            id: doc.id,
+                            ...doc.data()
+                        })
+                        getMessage()
+                    })
+        }
     }
 
     const getMessage = () => {
@@ -186,6 +200,13 @@ const Disscusion = ({navigation, route}) => {
                     type: 'myProfile'
                 })
             }
+        }
+
+        if(route.params.type == TYPE_GROUP){
+            navigation.navigate('ChatboxSetting', {
+                chatData: chatData,
+                memberData: memberData
+            })
         }
     }
 

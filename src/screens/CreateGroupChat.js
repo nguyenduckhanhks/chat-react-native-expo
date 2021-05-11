@@ -13,14 +13,34 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { COLORS, FONTS } from '../constants';
 import * as firebase from 'firebase';
 import 'firebase/firestore'; 
+import { LinearGradient } from 'expo-linear-gradient';
+import { RadioButton } from 'react-native-paper';
 
-import Header from '../components/Search/Header';
+import Header from '../components/CreateGroupChat/Header';
 
-const Search = ({navigation}) => {
+const TYPE_ACCOUNT = 'account'
+const TYPE_GROUP = 'group'
+
+const CreateGroupChat = ({navigation}) => {
+    const [uidLogin, setUidLogin] = useState('')
 
     const [listUser, setListUser] = useState([])
     const [refreshing, setRefreshing] = useState(false)
     const [filterUsers, setFilterUsers] = useState([])
+
+    const [selectedUser, setSelectedUser] = useState([])
+
+    //Call when component is rendered
+    useEffect(() => {
+        firebase.auth().onAuthStateChanged(user => {
+            if(!user) return navigation.navigate('Login')
+            let uidLogin = user['uid']
+            setUidLogin(uidLogin)
+        })
+
+        getUsers();
+    }, []);
+
     const getUsers = () => {
         try {
             setRefreshing(true)
@@ -44,13 +64,52 @@ const Search = ({navigation}) => {
             setRefreshing(false)
         }
     };
-    //Call when component is rendered
-    useEffect(() => {
-        getUsers();
-    }, []);
+
+    const toggleSelectUser = (uid) => {
+        let tmp = JSON.parse(JSON.stringify(selectedUser))
+        if(tmp.includes(uid)) tmp.splice(tmp.indexOf(uid), 1)
+        else tmp.push(uid)
+
+        setSelectedUser(tmp)
+    }
+
+    const createNewChat = () => {
+        if(!uidLogin) return;
+        let tmp = JSON.parse(JSON.stringify(selectedUser))
+        if(!tmp.includes(uidLogin)) tmp.push(uidLogin)
+        let newChat = {
+            name: '',
+            admin: uidLogin,
+            photo: '',
+            members: tmp,
+            type: TYPE_GROUP
+        }
+        firebase.firestore()
+                .collection('chats')
+                .add(newChat)
+                .then(res => {
+                    updateIdChat(res.id)
+                })
+                .then(() => {
+                    navigation.navigate('Disscusion', {
+                        type: TYPE_GROUP,
+                        chatid: res.id
+                    })
+                })
+    }
+
+    const updateIdChat = (id) => {
+        firebase.firestore()
+                .collection('chats')
+                .doc(id)
+                .update({
+                    id: id
+                })
+    }
+    
     return (
         <View style={styles.container}>
-            <Header navigation={navigation}/>
+            <Header navigation={navigation} />
             <SafeAreaView style={{height: '95%'}}>
                 {/* Search Bar */}
                 <View style={styles.inputSection}>
@@ -83,10 +142,7 @@ const Search = ({navigation}) => {
                     filterUsers.map((item) =>
                     <TouchableOpacity 
                         key={item["_id"]}
-                        onPress = { () => navigation.navigate('Profile', {
-                            type:'account',
-                            userId: item["id"]
-                        }) }
+                        onPress = { () => toggleSelectUser(item['id'])}
                      >
                         <View 
                             style={styles.rowUser}
@@ -96,17 +152,32 @@ const Search = ({navigation}) => {
                                 <View style={styles.boxUsername}>
                                     <Text style={styles.username}>{item["name"]}</Text>
                                 </View>
+                                <RadioButton 
+                                    value="male"
+                                    status={ selectedUser.includes(item['id']) ? 'checked' : 'unchecked'}
+                                    onPress={() => toggleSelectUser(item['id'])}
+                                    color="#f20045"
+                                />
                         </View>
                     </TouchableOpacity>
                     )
                 }
                 </ScrollView>
+                <TouchableOpacity 
+                    style={[styles.button]} 
+                    onPress={() => createNewChat()}
+                >
+                    <LinearGradient colors={['#f26a50', '#f20042', '#f20045']} style={styles.gradient}>
+                        <Text style={styles.text}>
+                                Tạo phòng chat</Text>
+                    </LinearGradient>
+                </TouchableOpacity>
             </SafeAreaView>
         </View>
     )
 }
 
-export default Search
+export default CreateGroupChat
 
 const styles = StyleSheet.create({
     container: {
@@ -144,8 +215,8 @@ const styles = StyleSheet.create({
     },
     boxUsername: {
         paddingBottom: 10,
-        paddingLeft: 10,
-        width: '90%',
+        paddingLeft: 7,
+        width: '83%',
         justifyContent: 'flex-end',
         alignContent: 'center',
     },
@@ -157,5 +228,21 @@ const styles = StyleSheet.create({
         alignItems: 'stretch',
         borderBottomColor: COLORS.darkgray,
         borderBottomWidth: 0.5,
-    }
+    },
+    gradient:{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems:'center',
+        borderRadius: 25
+    },
+    text: {
+        color: COLORS.white,
+        fontSize: 20,
+    },
+    button: {
+        width: '70%',
+        marginLeft:'15%',
+        marginTop: 40,
+        height: 50,
+    },
 })

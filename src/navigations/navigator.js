@@ -7,6 +7,8 @@ import Login from '../screens/Login';
 import SignUp from '../screens/SignUp';
 import Disscusion from '../screens/Disscusion';
 import ChatboxSetting from '../screens/ChatboxSetting';
+import CreateGroupChat from '../screens/CreateGroupChat';
+import AddMember from '../screens/AddMember';
 
 const Stack = createStackNavigator();
 
@@ -24,6 +26,8 @@ const StackNavigator = () => {
             <Stack.Screen name="SignUp" component={SignUp} />
             <Stack.Screen name="Disscusion" component={Disscusion} />
             <Stack.Screen name="ChatboxSetting" component={ChatboxSetting} />
+            <Stack.Screen name="CreateGroupChat" component={CreateGroupChat} />
+            <Stack.Screen name="AddMember" component={AddMember} />
         </Stack.Navigator>
     )
 }

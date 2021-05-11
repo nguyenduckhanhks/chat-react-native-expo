@@ -151,7 +151,7 @@ const ListFriends = ({navigation}) => {
 
     return (
         <View style={styles.container}>
-            <Header/>
+            <Header navigation={navigation}/>
             <SafeAreaView style={{height: '95%'}}>
                 {/* Search Bar */}
                 <View style={styles.inputSection}>

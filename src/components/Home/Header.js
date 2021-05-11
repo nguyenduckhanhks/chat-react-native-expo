@@ -46,7 +46,7 @@ const Header = ({navigation}) => {
                     paddingRight: 0,
                     justifyContent: 'center'
                 }}
-                onPress={() => navigation.navigate('NewPost')}
+                onPress={() => navigation.navigate('CreateGroupChat')}
             >
                 <Image
                     source={icons.plus}

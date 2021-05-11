@@ -27,6 +27,7 @@ const Home = ({navigation}) => {
     const [chatsName, setChatsName] = useState({})
     const [chatIds, setChatIds] = useState([])
     const [chatMembers, setChatMembers] = useState([])
+    const [mergeChat, setMergeChat] = useState([])
 
     const [loading, setLoading] = useState(true)
     const userOnlAnimate = useRef(new Animated.ValueXY()).current;
@@ -65,7 +66,8 @@ const Home = ({navigation}) => {
 
     useEffect(() => {
         // console.log(chatMembers)
-        if(!chatsName || !chatsLastmessage) return
+        if(!Object.keys(chatsName) || !Object.keys(chatsLastmessage) || Object.keys(chats) <= 0) return
+        // console.log(Object.keys(chats).length)
         let mergeChat = {}
         Object.keys(chats).forEach(key => {
             let newChat = {
@@ -80,9 +82,9 @@ const Home = ({navigation}) => {
                 lastTime: chatsLastmessage[key] ? chatsLastmessage[key]['lastMessage'] : '',
                 accountId: chats[key]['type'] == 'account' ? (chatsName[key] ? chatsName[key]['accountId'] : '') : ''
             }
-            if(newChat['lastMessage'] !== '') mergeChat[key] = newChat
+            if(newChat['lastMessage'] !== '' || newChat['type'] === 'group') mergeChat[key] = newChat
         })
-        setChats(mergeChat)
+        setMergeChat(mergeChat)
     }, [ chatsName, chatsLastmessage])
 
     const getListUser = () => {
@@ -162,9 +164,10 @@ const Home = ({navigation}) => {
 
     const getNameMessage = () => {
         if(chats.length <= 0 || chatMembers.length <= 0 || !uidLogin) return
+        let uniqueMem = [...new Set(chatMembers)];
         firebase.firestore()
                 .collection('users')
-                .where('id', 'in', chatMembers)
+                .where('id', 'in', uniqueMem)
                 .onSnapshot(querySnapshot => {
                     let memberData = {}
                     querySnapshot.docs.forEach(doc => {
@@ -180,13 +183,14 @@ const Home = ({navigation}) => {
                             cChats[key]['members'].forEach(mem => {
                                 if(mem != uidLogin) {
                                     if(name == '') name = memberData[mem]['name']
-                                    else name = name + memberData[mem]['name'] + ','
+                                    else name = name + ', ' + memberData[mem]['name']
 
                                     if(cChats[key]['type'] == 'account')
                                         cChats[key]['accountId'] = mem
                                 }
                             })
                             if(name == '') name = memberData[cChats[key]['members'][0]]['name']
+                            if(name.length > 20) name = name.substr(0,20) + '...'
                             if(cChats[key]['type'] == 'account' && !cChats[key]['accountId'])
                                 cChats[key]['accountId'] = memberData[cChats[key]['members'][0]]['id']
                             cChats[key]['name'] = name
@@ -267,22 +271,25 @@ const Home = ({navigation}) => {
                     </View>
                     <ScrollView>
                         {
-                            loading || Object.keys(chats).length == 0 ? (<ActivityIndicator size='large' color='#f20042'/>):
+                            loading || Object.keys(mergeChat).length == 0 ? (<ActivityIndicator size='large' color='#f20042'/>):
                             (
                                 <Animated.View style={[listChatAnimate.getLayout(), styles.listChatbox]}>
                                     {
-                                        Object.keys(chats).map((key) => (
+                                        Object.keys(mergeChat).map((key) => (
                                             <ListChatbox
                                                 key={key}
-                                                chatName={chats[key]['name']}
-                                                avatar={chats[key]['photo']}
+                                                chatName={mergeChat[key]['name']}
+                                                avatar={mergeChat[key]['photo']}
                                                 count={1}
-                                                lastMessage={chats[key]['lastMessage']}
+                                                lastMessage={mergeChat[key]['lastMessage']}
                                                 lastTime={'2.am'}
                                                 onPress={()=>{
-                                                   navigation.navigate('Disscusion', {
-                                                       type: chats[key]['type'],
-                                                       userId: chats[key]['accountId']
+                                                   navigation.navigate('Disscusion', mergeChat[key]['type'] == 'account' ? {
+                                                       type: mergeChat[key]['type'],
+                                                       userId: mergeChat[key]['accountId']
+                                                   } : {
+                                                        type: mergeChat[key]['type'],
+                                                        idChat: mergeChat[key]['id']
                                                    });
                                                 }}
                                             />

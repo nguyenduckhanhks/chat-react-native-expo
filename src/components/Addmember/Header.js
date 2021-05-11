@@ -12,12 +12,10 @@ const Header = ({navigation}) => {
                     paddingLeft: 0,
                     justifyContent: 'center'
                 }}
-                onPress={() => navigation.navigate('Profile', {
-                    type: 'myProfile'
-                })}
+                onPress={() => navigation.pop()}
             >
                 <Image
-                    source={icons.avatar}
+                    source={icons.back}
                     resizeMode="contain"
                     style={{
                         width: 30,
@@ -36,7 +34,7 @@ const Header = ({navigation}) => {
                         borderRadius: SIZES.radius
                     }}
                 >
-                    <Text style={{ ...FONTS.h3 }}>Danh sách bạn bè</Text>
+                    <Text style={{ ...FONTS.h3 }}>Thêm thành viên</Text>
                 </View>
             </View>
 
@@ -46,16 +44,8 @@ const Header = ({navigation}) => {
                     paddingRight: 0,
                     justifyContent: 'center'
                 }}
-                onPress={() => navigation.navigate('CreateGroupChat')}
+                onPress={() => navigation.navigate('NewPost')}
             >
-                <Image
-                    source={icons.plus}
-                    resizeMode="contain"
-                    style={{
-                        width: 30,
-                        height: 30
-                    }}
-                />
             </TouchableOpacity>
         </View>
     )

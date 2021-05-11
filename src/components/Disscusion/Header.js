@@ -30,9 +30,18 @@ const Header = ({navigation, uidLogin, memberData, chatData, subtitle, titleColo
         if(memberData.length == 1) 
             return setName(memberData[0]['name'])
 
+        let name = ''
         memberData.forEach(element => {
-            if(element['id'] != uidLogin) return setName(element['name'])
+            if(chatData['type'] == 'account') {
+                if(element['id'] != uidLogin) return setName(element['name'])
+            }
+            else {
+                if(name == '') name = element['name']
+                else name = name + ', ' + element['name']
+            } 
         });
+        if(name.length > 40) name = name.substr(0,40) + '...'
+        setName(name)
     }
 
     return (
@@ -65,7 +74,12 @@ const Header = ({navigation, uidLogin, memberData, chatData, subtitle, titleColo
                         borderRadius: SIZES.radius
                     }}
                 >
-                    <Text style={{ ...FONTS.h3, color: titleColor }}>{name}</Text>
+                    <Text 
+                        style={chatData && chatData['type'] == 'account' ? 
+                        { ...FONTS.h3, color: titleColor } : 
+                        { ...FONTS.h4, color: titleColor, textAlign: 'center' }}>
+                        {name}
+                    </Text>
                     <Text style={{ ...FONTS.body5, color: subtitleColor }}>{subtitle}</Text>
                 </View>
             </View>
