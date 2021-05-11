@@ -1,7 +1,7 @@
 import React from 'react';
 import {View,Text,TouchableOpacity,StyleSheet,Image} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import {FONTS, COLORS } from '../../constants'
+import {FONTS, COLORS, icons } from '../../constants'
 
 const randomTime = () => {
     const hrs = Math.round(Math.random()*12);
@@ -18,12 +18,12 @@ const ListChatbox = ({ chatName, avatar, count, onPress, lastMessage, lastTime }
         onPress={onPress}
         style={styles.chatbox}
        >       
-            <Image source={{ uri: avatar}} style={styles.avatar}/>
+            <Image source={avatar ? { uri: avatar} : icons.avatar} style={styles.avatar}/>
             <View style={{marginLeft:10}}>
                 <Text style={styles.chatName}>{chatName}</Text>
                 <Text style={styles.lastMessage}>{lastMessage}</Text>
             </View>
-            <View style={{}}>
+            <View style={{position: 'absolute', right: 20}}>
                 <Text style={styles.lastTime}>{lastTime}</Text>
                 {
                 count > 0 ? (

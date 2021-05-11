@@ -2,12 +2,14 @@ import React from 'react';
 import {View,Text,StyleSheet,Image, TouchableOpacity} from 'react-native';
 import { FONTS, COLORS, icons} from '../../constants'
 
+const TYPE_ACCOUNT = 'account'
+
 const UserOnline = ({navigation, username, avatar, uid}) => {
     return(
         <TouchableOpacity 
             style={styles.container}
-            onPress={() => navigation.navigate('Profile', {
-                type:'account',
+            onPress={() => navigation.navigate('Disscusion', {
+                type: TYPE_ACCOUNT,
                 userId: uid
             })}
         >

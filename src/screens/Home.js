@@ -22,6 +22,11 @@ import Header from '../components/Home/Header';
 const Home = ({navigation}) => {
     const [uidLogin, setUidLogin] = useState('')
     const [listUser, setListUser] = useState([])
+    const [chats, setChats] = useState({})
+    const [chatsLastmessage, setChatsLastmessage] = useState({})
+    const [chatsName, setChatsName] = useState({})
+    const [chatIds, setChatIds] = useState([])
+    const [chatMembers, setChatMembers] = useState([])
 
     const [loading, setLoading] = useState(true)
     const userOnlAnimate = useRef(new Animated.ValueXY()).current;
@@ -47,7 +52,38 @@ const Home = ({navigation}) => {
         }).start();
 
         getListUser()
-    }, [])
+        getChats()
+    }, [uidLogin])
+
+    useEffect(() => {
+        getNameMessage()
+    }, [ chatMembers])
+
+    useEffect(() => {
+        getLastMessage()
+    }, [ chatIds])
+
+    useEffect(() => {
+        // console.log(chatMembers)
+        if(!chatsName || !chatsLastmessage) return
+        let mergeChat = {}
+        Object.keys(chats).forEach(key => {
+            let newChat = {
+                admin: chats[key]['admin'],
+                id: chats[key]['id'],
+                members: chats[key]['members'],
+                name: chatsName[key] ? chatsName[key]['name'] : '',
+                photo: chatsName[key] ? chatsName[key]['photo'] : '',
+                type: chats[key]['type'],
+                count: chatsLastmessage[key] ? chatsLastmessage[key]['count'] : 1,
+                lastMessage: chatsLastmessage[key] ? chatsLastmessage[key]['lastMessage'] : '',
+                lastTime: chatsLastmessage[key] ? chatsLastmessage[key]['lastMessage'] : '',
+                accountId: chats[key]['type'] == 'account' ? (chatsName[key] ? chatsName[key]['accountId'] : '') : ''
+            }
+            if(newChat['lastMessage'] !== '') mergeChat[key] = newChat
+        })
+        setChats(mergeChat)
+    }, [ chatsName, chatsLastmessage])
 
     const getListUser = () => {
         firebase.firestore()
@@ -63,6 +99,115 @@ const Home = ({navigation}) => {
                     })
                     setListUser(usersData)
                     setLoading(false)
+                })
+    }
+
+    const getChats = () => {
+        setChatIds([])
+        setChatMembers([])
+        firebase.firestore()
+                .collection('chats')
+                .where('members', 'array-contains', uidLogin)
+                .onSnapshot( querySnapshot => {
+                    let chats = querySnapshot.docs.map( doc => {
+                       return {
+                            ...doc.data()
+                        }
+                    })
+                    if(!chats) return;
+                    let formatChats = {}
+                    let chatIds = []
+                    let chatMembers = []
+
+                    chats.forEach(chat => {
+                        formatChats[chat['id']] = chat
+                        chatIds.push(chat['id'])
+                        chatMembers = chatMembers.concat(chat['members'])
+                    })
+                    setChats(formatChats)
+                    setChatIds(chatIds)
+                    setChatMembers(chatMembers)
+                }) 
+    }
+
+    const getLastMessage = () => {
+        if(chats.length <= 0 || chatIds.length <= 0) return
+
+        return firebase.firestore()
+                .collection('messages')
+                .where('idChat', 'in', chatIds)
+                .onSnapshot(querySnapshot => {
+                    let cChats = JSON.parse(JSON.stringify(chats))
+
+                    const messageData = querySnapshot.docs.map(doc => {
+                        return {
+                            ...doc.data()
+                        }
+                    })
+
+                    Object.keys(cChats).forEach(key => {
+                        cChats[key]['count'] = 1
+                        cChats[key]['lastMessage'] = ''
+                        cChats[key]['lastTime'] = ''
+
+                        let messages = messageData.filter(msg => msg['idChat'] == key).sort((a,b) => a['created'] > b['created'] ? -1 : 1)
+                        if(messages.length > 0) {
+                            cChats[key]['lastMessage'] = messages[0]['content']
+                            cChats[key]['lastTime'] = messages[0]['created']
+                        }
+                    })
+                    setChatsLastmessage(cChats)
+                })
+    }
+
+    const getNameMessage = () => {
+        if(chats.length <= 0 || chatMembers.length <= 0 || !uidLogin) return
+        firebase.firestore()
+                .collection('users')
+                .where('id', 'in', chatMembers)
+                .onSnapshot(querySnapshot => {
+                    let memberData = {}
+                    querySnapshot.docs.forEach(doc => {
+                        memberData[doc.id] = doc.data()
+                    })
+
+                    let cChats = JSON.parse(JSON.stringify(chats))
+
+                    Object.keys(cChats).forEach(key => {
+                        // get name
+                        if(cChats[key]['name'] == '') {
+                            let name = ''
+                            cChats[key]['members'].forEach(mem => {
+                                if(mem != uidLogin) {
+                                    if(name == '') name = memberData[mem]['name']
+                                    else name = name + memberData[mem]['name'] + ','
+
+                                    if(cChats[key]['type'] == 'account')
+                                        cChats[key]['accountId'] = mem
+                                }
+                            })
+                            if(name == '') name = memberData[cChats[key]['members'][0]]['name']
+                            if(cChats[key]['type'] == 'account' && !cChats[key]['accountId'])
+                                cChats[key]['accountId'] = memberData[cChats[key]['members'][0]]['id']
+                            cChats[key]['name'] = name
+                        } 
+
+                        //get photo
+                        if(cChats[key]['photo'] == '') {
+                            if(cChats[key]['members'].length == 2) {
+                                let photo = ''
+                                cChats[key]['members'].forEach(mem => {
+                                    if(mem != uidLogin) {
+                                        photo = memberData[mem]['photo']
+                                    }
+                                })
+                                if(photo == '') photo = memberData[cChats[key]['members'][0]]['photo']
+                                cChats[key]['photo'] = photo
+                            }
+                        } 
+                    })
+                    setChatsName(cChats)
+                    // console.log(cChats)
                 })
     }
 
@@ -122,20 +267,23 @@ const Home = ({navigation}) => {
                     </View>
                     <ScrollView>
                         {
-                            loading || Object.keys(users).length == 0 ? (<ActivityIndicator size='large' color='#f20042'/>):
+                            loading || Object.keys(chats).length == 0 ? (<ActivityIndicator size='large' color='#f20042'/>):
                             (
                                 <Animated.View style={[listChatAnimate.getLayout(), styles.listChatbox]}>
                                     {
-                                        Object.keys(users).map((key) => (
+                                        Object.keys(chats).map((key) => (
                                             <ListChatbox
                                                 key={key}
-                                                chatName={users[key]['login']}
-                                                avatar={users[key].avatar_url}
+                                                chatName={chats[key]['name']}
+                                                avatar={chats[key]['photo']}
                                                 count={1}
-                                                lastMessage={'hello, how are you'}
+                                                lastMessage={chats[key]['lastMessage']}
                                                 lastTime={'2.am'}
                                                 onPress={()=>{
-                                                   navigation.navigate('Disscusion');
+                                                   navigation.navigate('Disscusion', {
+                                                       type: chats[key]['type'],
+                                                       userId: chats[key]['accountId']
+                                                   });
                                                 }}
                                             />
                                         ))

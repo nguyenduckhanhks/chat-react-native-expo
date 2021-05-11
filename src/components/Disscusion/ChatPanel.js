@@ -6,24 +6,24 @@ import {dataMessageConst} from '../../data';
 import Received from './Received';
 import Sent from './Sent';
 
-const ChatPanel = ({itemPic, dataMessage, uid}) => {
+const ChatPanel = ({dataMessage, uidLogin}) => {
     return(
         <ScrollView showsVerticalScrollIndicator={false} style={{height: '95%'}}>
-            {
-                dataMessageConst.map((data, index) => {
-                    if(index % 2 == 0) return (
+            {dataMessage && 
+                dataMessage.map((data, index) => {
+                    if(uidLogin == data['owner']) return (
                         <Sent
                             key={index}
-                            message={data}
+                            message={data['content']}
                             create={data['create']}
                         />
                     ) 
                     else return (
                         <Received 
                             key={index}
-                            image={itemPic}
-                            message={data}
-                            create={data['create']}
+                            message={data['content']}
+                            create={'abc'}
+                            owner={data['owner']}
                         />
                     )
                 })

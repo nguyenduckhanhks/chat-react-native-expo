@@ -7,7 +7,7 @@ import DatePicker from '../components/DatePicker';
 import * as firebase from 'firebase';
 import { RadioButton } from 'react-native-paper';
 import { COLORS, icons, FONTS } from '../constants';
-import Header from '../components/Disscusion/Header';
+import Header from '../components/Profile/Header';
 import 'firebase/firestore';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
@@ -149,15 +149,7 @@ const Profile = ({navigation, route}) => {
             colors={[COLORS.primary2, COLORS.primary1, COLORS.primary]}
         >
             <View style={{paddingHorizontal: 20}}>
-                <Header navigation = {navigation}
-                    title="Hồ sơ"
-                    subtitle="Đang hoạt động"
-                    subtitleColor="#7fff00"
-                    rightIcon={type === 'myProfile' ? icons.exit : null}
-                    onTapRightIcon={() => {
-                        type === 'myProfile' ? Signout() : null}
-                    }
-                />
+                <Header navigation = {navigation}/>
             </View>
             <View style={{
                 paddingTop: 20,

@@ -1,8 +1,40 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import { View, TouchableOpacity, Image, Text, StyleSheet} from 'react-native';
 import { icons, SIZES, COLORS, FONTS } from '../../constants';
 
-const Header = ({navigation, title, subtitle, titleColor, subtitleColor, rightIcon, onTapRightIcon}) => {
+const Header = ({navigation, uidLogin, memberData, chatData, subtitle, titleColor, subtitleColor, onTapRightIcon}) => {
+    const [rightAvatar, setRightAvatar] = useState('')
+    const [name, setName] = useState('')
+
+    useEffect(() => {
+        getChatAvatar()
+        getChatName()
+    },[chatData, memberData, uidLogin])
+
+    const getChatAvatar = () => {
+        if(!chatData || !memberData || !uidLogin) return;
+        if(chatData['photo'] != '') return setRightAvatar(chatData['photo'])
+
+        if(memberData.length == 1) 
+            return setRightAvatar(memberData[0]['photo'])
+
+        memberData.forEach(element => {
+            if(element['id'] != uidLogin) return setRightAvatar(element['photo'])
+        });
+    }
+
+    const getChatName = () => {
+        if(!chatData || !memberData || !uidLogin) return;
+        if(chatData['name'] != '') return setName(chatData['name'])
+
+        if(memberData.length == 1) 
+            return setName(memberData[0]['name'])
+
+        memberData.forEach(element => {
+            if(element['id'] != uidLogin) return setName(element['name'])
+        });
+    }
+
     return (
         <View style={{ flexDirection: 'row', height: 50, marginTop: 10 }}>
             <TouchableOpacity
@@ -33,7 +65,7 @@ const Header = ({navigation, title, subtitle, titleColor, subtitleColor, rightIc
                         borderRadius: SIZES.radius
                     }}
                 >
-                    <Text style={{ ...FONTS.h3, color: titleColor }}>{title}</Text>
+                    <Text style={{ ...FONTS.h3, color: titleColor }}>{name}</Text>
                     <Text style={{ ...FONTS.body5, color: subtitleColor }}>{subtitle}</Text>
                 </View>
             </View>
@@ -47,7 +79,7 @@ const Header = ({navigation, title, subtitle, titleColor, subtitleColor, rightIc
                 onPress={() => onTapRightIcon()}
             >
                 <Image 
-                    source={rightIcon} 
+                    source={ rightAvatar ? {uri: rightAvatar} : icons.avatar} 
                     style={styles.avatar}
                 />
             </TouchableOpacity>

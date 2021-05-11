@@ -262,9 +262,13 @@ const ListFriends = ({navigation}) => {
                 }
                 {
                     mode == 'friend' && filterUserFriend.map((item) => 
-                        <View 
+                        <TouchableOpacity 
                             style={styles.rowUser}
                             key={item.uid}
+                            onPress={() => navigation.navigate('Profile', {
+                                type: 'account',
+                                userId: item.uid
+                            })}
                         >       
                                 <Image source={item.photo ? {uri: item.photo} : icons.avatar} style={styles.avatar}/>
                                 <View style={styles.boxUsername}>
@@ -273,7 +277,7 @@ const ListFriends = ({navigation}) => {
                                 <TouchableOpacity style={styles.buttonXoa} onPress={() => removeFriend(item.uid)}>
                                     <Text style={{...FONTS.body4}}>Xóa</Text>
                                 </TouchableOpacity>
-                        </View>
+                        </TouchableOpacity>
                     )
                 }
                 </ScrollView>
