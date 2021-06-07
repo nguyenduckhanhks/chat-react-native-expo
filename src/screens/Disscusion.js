@@ -85,7 +85,8 @@ const Disscusion = ({navigation, route}) => {
                                 }
                             })
 
-                            if(!isnew) createChat(route.params.userId)
+                            if(!isnew) createChat(route.params.userId) 
+                            else
                             getMessage()
                         }else {
                             createChat(route.params.userId)
@@ -110,6 +111,7 @@ const Disscusion = ({navigation, route}) => {
 
     const getMessage = () => {
         if(!chatId) return
+        console.log(chatId)
         firebase.firestore()
                 .collection('messages')
                 .where('idChat', '==', chatId)

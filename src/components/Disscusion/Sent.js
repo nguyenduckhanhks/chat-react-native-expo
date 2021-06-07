@@ -1,16 +1,18 @@
 import React from 'react';
-import {View,Text,StyleSheet} from 'react-native';
+import {View,Text,StyleSheet, TouchableOpacity} from 'react-native';
 import {LinearGradient} from 'expo-linear-gradient';
 import { COLORS} from '../../constants';
 
-const Sent = ({message, create}) => {
+const Sent = ({message, create, setModal}) => {
     return(
         <View style={styles.container}>
             <LinearGradient
                 colors={['#f26a50','#f20045']}
                 style={styles.gradient}
             >
-                <Text style={styles.text}>{message}</Text>
+                <TouchableOpacity onPress={() => setModal(true)}>
+                    <Text style={styles.text}>{message}</Text>
+                </TouchableOpacity>
             </LinearGradient>
             <Text style={styles.duration}>12:13 AM</Text>
         </View>

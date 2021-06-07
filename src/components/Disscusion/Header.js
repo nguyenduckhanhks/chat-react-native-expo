@@ -40,6 +40,7 @@ const Header = ({navigation, uidLogin, memberData, chatData, subtitle, titleColo
                 else name = name + ', ' + element['name']
             } 
         });
+        if(name == '') return
         if(name.length > 40) name = name.substr(0,40) + '...'
         setName(name)
     }
