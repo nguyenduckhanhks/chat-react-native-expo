@@ -2,11 +2,20 @@ import React from 'react';
 import {View,Text,StyleSheet,Image} from 'react-native';
 import { icons, COLORS } from '../../constants';
 
-const Received = ({image, message}) => {
+const Received = ({image, message, time, memberData, owner}) => {
+    const getName = () => {
+        if(!memberData) return;
+        for(let i = 0; i < memberData.length; i++) {
+            if(memberData[i]['id'] == owner) {
+                return memberData[i]['name']
+            }
+        }
+    }
     return(
         <View style={styles.container}>
           <Image source={icons.avatar} style={styles.img}/>
           <View>
+                <Text style={styles.duration}>{getName()}</Text>
                 <View 
                     style={{
                         backgroundColor: COLORS.gray,
@@ -18,7 +27,7 @@ const Received = ({image, message}) => {
                 >
                    <Text style={styles.message}>{message}</Text>
                 </View>
-               <Text style={styles.duration}>12:13 AM</Text>
+               <Text style={styles.duration}>{time ? time : ''}</Text>
           </View>
         </View>
     )

@@ -75,7 +75,8 @@ const Disscusion = ({navigation, route}) => {
                             let isnew = false
                             querySnapshot.docs.forEach(doc => {
                                 let members = doc.data()['members']
-                                if(equals(members, [route.params.userId, uidLogin])) {
+                                if(equals(members, [route.params.userId, uidLogin]) || equals(members, [uidLogin, route.params.userId])) {
+                                    console.log(doc.id)
                                     isnew = true
                                     setChatId(doc.id)
                                     setChatData({
@@ -111,7 +112,6 @@ const Disscusion = ({navigation, route}) => {
 
     const getMessage = () => {
         if(!chatId) return
-        console.log(chatId)
         firebase.firestore()
                 .collection('messages')
                 .where('idChat', '==', chatId)
@@ -234,6 +234,7 @@ const Disscusion = ({navigation, route}) => {
                         <ChatPanel
                             dataMessage={messages}
                             uidLogin={uidLogin}
+                            memberData={memberData}
                         />
                     </View>
                     <View style={styles.inputSection}>

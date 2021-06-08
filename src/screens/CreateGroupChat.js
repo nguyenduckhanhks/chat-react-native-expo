@@ -74,6 +74,7 @@ const CreateGroupChat = ({navigation}) => {
     }
 
     const createNewChat = () => {
+        console.log(123);
         if(!uidLogin) return;
         let tmp = JSON.parse(JSON.stringify(selectedUser))
         if(!tmp.includes(uidLogin)) tmp.push(uidLogin)
@@ -89,11 +90,13 @@ const CreateGroupChat = ({navigation}) => {
                 .add(newChat)
                 .then(res => {
                     updateIdChat(res.id)
+                    return res
                 })
-                .then(() => {
+                .then((res) => {
+                    console.log(res.id)
                     navigation.navigate('Disscusion', {
                         type: TYPE_GROUP,
-                        chatid: res.id
+                        idChat: res.id
                     })
                 })
     }

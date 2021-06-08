@@ -113,7 +113,8 @@ const Home = ({navigation}) => {
                 .onSnapshot( querySnapshot => {
                     let chats = querySnapshot.docs.map( doc => {
                        return {
-                            ...doc.data()
+                            ...doc.data(),
+                            id: doc.id
                         }
                     })
                     if(!chats) return;
@@ -271,7 +272,7 @@ const Home = ({navigation}) => {
                     </View>
                     <ScrollView>
                         {
-                            loading || Object.keys(mergeChat).length == 0 ? (<ActivityIndicator size='large' color='#f20042'/>):
+                            loading ? (<ActivityIndicator size='large' color='#f20042'/>):
                             (
                                 <Animated.View style={[listChatAnimate.getLayout(), styles.listChatbox]}>
                                     {

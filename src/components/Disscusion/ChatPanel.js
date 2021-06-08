@@ -7,8 +7,16 @@ import { icons, SIZES, COLORS } from '../../constants';
 import Received from './Received';
 import Sent from './Sent';
 
-const ChatPanel = ({dataMessage, uidLogin}) => {
+const ChatPanel = ({dataMessage, uidLogin, memberData}) => {
     const [modal, setModal] = useState(false)
+    const formatTime = (unix_timestamp) => {
+        var date = new Date(unix_timestamp);
+        var hours = date.getHours();
+        var minutes = "0" + date.getMinutes();
+
+        var formattedTime = hours + ':' + minutes.substr(-2);
+        return formattedTime
+    }
     return(
         <ScrollView showsVerticalScrollIndicator={false} style={{height: '95%'}}>
             {dataMessage && 
@@ -19,6 +27,7 @@ const ChatPanel = ({dataMessage, uidLogin}) => {
                             message={data['content']}
                             create={data['create']}
                             setModal={setModal}
+                            time = {formatTime(data['created'])}
                         />
                     ) 
                     else return (
@@ -27,6 +36,8 @@ const ChatPanel = ({dataMessage, uidLogin}) => {
                             message={data['content']}
                             create={'abc'}
                             owner={data['owner']}
+                            time = {formatTime(data['created'])}
+                            memberData={memberData}
                         />
                     )
                 })

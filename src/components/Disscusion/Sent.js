@@ -3,7 +3,7 @@ import {View,Text,StyleSheet, TouchableOpacity} from 'react-native';
 import {LinearGradient} from 'expo-linear-gradient';
 import { COLORS} from '../../constants';
 
-const Sent = ({message, create, setModal}) => {
+const Sent = ({message, create, setModal, time}) => {
     return(
         <View style={styles.container}>
             <LinearGradient
@@ -14,7 +14,7 @@ const Sent = ({message, create, setModal}) => {
                     <Text style={styles.text}>{message}</Text>
                 </TouchableOpacity>
             </LinearGradient>
-            <Text style={styles.duration}>12:13 AM</Text>
+            <Text style={styles.duration}>{time ? time : ''}</Text>
         </View>
     )
 }
